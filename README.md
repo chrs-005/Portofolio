@@ -18,6 +18,10 @@ python -m http.server 4173
 
 then visit http://localhost:4173.
 
+> The CSS/JS includes in `index.html` carry a `?v=` query string. If a hard refresh
+> ever shows stale styles while you're editing, bump that number (e.g. `?v=3`) to force
+> the browser to reload the assets.
+
 ## Edit the text
 
 **All copy lives in [`js/content.js`](js/content.js).** Change a value, save, refresh.
@@ -46,8 +50,9 @@ Fields marked `(HTML ok)` accept `<em>…</em>` for the italic serif accent.
 | Custom cursor | dot + trailing ring (`.cursor-dot` / `.cursor-ring`); ring grows over interactive elements |
 | Word-split headings | `splitWords()` in `js/main.js` — staggered mask reveal per word |
 | Giant section numbers | `.ghost-num`, parallaxed in the frame loop |
-| Card spotlight + tilt | `--mx`/`--my` radial highlight + 3D tilt on stat/education cards |
-| Floating "View" chip | `.row-chip` follows the cursor over project rows |
+| Project row spotlight | `--mx`/`--my` radial highlight follows the cursor along each project row |
+| Hairline hover accents | stat / education rows grow an accent underline on hover (no boxes) |
+| Floating "View" label | `.row-chip` bracketed text follows the cursor over project rows |
 | Timeline draw | `.exp-line-fill` scales with scroll; dots light up as they pass |
 | Stat count-ups | `animateStat()` — numbers count up when revealed (incl. the 10⁻⁶ exponent) |
 | Progress bar | `.progress-bar`, thin accent line at the top of the viewport |

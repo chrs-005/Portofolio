@@ -377,6 +377,7 @@
     chip = document.createElement("div");
     chip.className = "row-chip";
     chip.textContent = "View ↗";
+    chip.setAttribute("aria-hidden", "true");
     document.body.append(cursorDot, cursorRing, chip);
     document.body.classList.add("custom-cursor", "cursor-off");
 
@@ -392,8 +393,8 @@
       document.body.classList.remove("cursor-off")
     );
 
-    // magnetic pull on buttons & pills
-    document.querySelectorAll(".btn, .social-link, .contact-email, .nav-monogram").forEach((el) => {
+    // magnetic pull on buttons & icons
+    document.querySelectorAll(".btn, .social-link, .nav-monogram").forEach((el) => {
       el.addEventListener("mousemove", (e) => {
         const r = el.getBoundingClientRect();
         const dx = e.clientX - (r.left + r.width / 2);
@@ -407,22 +408,7 @@
       });
     });
 
-    // glass cards: spotlight follows cursor + gentle 3D tilt
-    document.querySelectorAll(".stat-card, .edu-item").forEach((card) => {
-      card.addEventListener("mousemove", (e) => {
-        const r = card.getBoundingClientRect();
-        const x = e.clientX - r.left;
-        const y = e.clientY - r.top;
-        card.style.setProperty("--mx", x + "px");
-        card.style.setProperty("--my", y + "px");
-        const rX = (y / r.height - 0.5) * -7;
-        const rY = (x / r.width - 0.5) * 7;
-        card.style.transform = `perspective(700px) rotateX(${rX}deg) rotateY(${rY}deg) translateY(-3px)`;
-      });
-      card.addEventListener("mouseleave", () => (card.style.transform = ""));
-    });
-
-    // project rows: spotlight + floating "View" chip
+    // project rows: spotlight + floating "View" label
     const projectList = $("#projectList");
     projectList.addEventListener("mousemove", (e) => {
       const row = e.target.closest(".project-row");
