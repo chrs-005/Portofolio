@@ -4,123 +4,77 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Christophe El Chabab</title>
-  <meta name="description" content="Portfolio of Christophe El Chabab — AI, Computer Science & Mathematics." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23090d12'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='30' font-weight='bold' fill='%23e9eef5' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
+  <meta name="description" content="Christophe El Chabab. Machine learning, research and software at the American University of Beirut." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2307080a'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='30' font-weight='bold' fill='%23ecebe6' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- Font pairing from breedlove.xyz: Archivo (sans) + Newsreader (italic serif) -->
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=2" />
+  <!-- Archivo + Newsreader (the breedlove.xyz pairing) + JetBrains Mono for labels -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
 </head>
 <body>
 
-  <!-- film-grain overlay for the glass feel -->
-  <div class="noise" aria-hidden="true"></div>
-
-  <!-- live scroll readout, bottom-left -->
-  <div class="scrl-counter" id="scrlCounter" aria-hidden="true">SCRL 0.00</div>
+  <!-- always-moving smoke field (js/bg.js); the Higgsfield texture is the no-WebGL fallback -->
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
 
   <header class="nav" id="nav">
-    <a class="nav-monogram" href="#top" id="navMonogram"></a>
-    <nav class="nav-links" id="navLinks" aria-label="Primary"></nav>
-    <a class="btn btn-ghost nav-resume" id="navResume" href="#" target="_blank" rel="noopener"></a>
+    <a class="nav-name" href="#top">Christophe El Chabab</a>
+    <nav class="nav-links" id="navLinks" aria-label="Sections"></nav>
+    <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false">Sound <span id="soundState">off</span></button>
   </header>
 
   <main id="top">
-    <!-- Tall wrapper: the hero stays sticky inside it while the exit animation plays -->
+    <!-- tall wrapper: the hero stays sticky while the exit plays -->
     <div class="hero-wrap" id="heroWrap">
       <section class="hero" id="hero">
-
-        <!-- LAYER 1 · background: Higgsfield texture + dot grid + aurora, drifts opposite the cursor -->
-        <div class="layer layer-bg" id="layerBg" aria-hidden="true">
-          <div class="bg-texture"></div>
-          <div class="dot-grid"></div>
-          <div class="aurora aurora-1"></div>
-          <div class="aurora aurora-2"></div>
-          <div class="aurora aurora-3"></div>
-          <div class="streak"></div>
-        </div>
-
-        <!-- LAYER 2 · midground: ghost wordmark -->
         <div class="layer layer-ghost" id="layerGhost" aria-hidden="true">
           <span class="ghost-word" id="ghostWord"></span>
         </div>
 
-        <!-- LAYER 3 · foreground: name + copy, tilts and tracks the cursor fastest -->
         <div class="layer layer-fg">
           <div class="hero-stage" id="heroStage">
-            <p class="eyebrow" id="eyebrow"><span class="eyebrow-dot"></span><span id="eyebrowText"></span></p>
             <h1 class="name" id="name"></h1>
-            <div class="name-reflection" id="nameReflection" aria-hidden="true"></div>
-            <p class="tagline" id="tagline"></p>
-            <div class="cta-row" id="ctaRow"></div>
-            <div class="social-row" id="socialRow"></div>
+            <p class="intro" id="intro"></p>
+            <p class="hero-links" id="heroLinks"></p>
           </div>
         </div>
 
-        <div class="scroll-hint" id="scrollHint" aria-hidden="true">
-          <span id="scrollHintText"></span>
-          <span class="scroll-hint-line"></span>
-        </div>
+        <div class="hero-corner hero-corner-l mono" id="cornerL"></div>
+        <div class="hero-corner hero-corner-r mono" id="cornerR"></div>
       </section>
     </div>
 
-    <!-- looping skills ticker -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track" id="marqueeTrack"></div>
-    </div>
+    <section class="section" id="research"></section>
+    <section class="section" id="projects"></section>
+    <section class="section" id="experience"></section>
+    <section class="section" id="about"></section>
 
-    <!-- 01 · ABOUT -->
-    <section class="section about" id="about">
-      <div class="section-inner">
-        <p class="section-label reveal" id="aboutLabel"></p>
-        <h2 class="section-heading reveal" id="aboutHeading"></h2>
-        <p class="about-lead reveal" id="aboutLead"></p>
-        <div class="stat-grid" id="statGrid"></div>
-      </div>
-    </section>
-
-    <!-- 02 · PROJECTS -->
-    <section class="section projects" id="projects">
-      <div class="section-inner">
-        <p class="section-label reveal" id="projectsLabel"></p>
-        <h2 class="section-heading reveal" id="projectsHeading"></h2>
-        <div class="project-list" id="projectList"></div>
-      </div>
-    </section>
-
-    <!-- 03 · EXPERIENCE -->
-    <section class="section experience" id="experience">
-      <div class="section-inner">
-        <p class="section-label reveal" id="expLabel"></p>
-        <h2 class="section-heading reveal" id="expHeading"></h2>
-        <div class="exp-grid">
-          <div class="exp-jobs" id="expJobs"></div>
-          <aside class="exp-edu">
-            <p class="exp-edu-label reveal" id="eduLabel"></p>
-            <div id="eduList"></div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <!-- 04 · CONTACT -->
     <section class="section contact" id="contact">
-      <div class="section-inner">
-        <p class="section-label reveal" id="contactLabel"></p>
-        <h2 class="contact-heading reveal" id="contactHeading"></h2>
-        <p class="contact-sub reveal" id="contactSub"></p>
-        <a class="contact-email reveal" id="contactEmail" href="#"></a>
-        <div class="social-row contact-socials reveal" id="contactSocials"></div>
-      </div>
-      <footer class="footer">
+      <p class="mono contact-label" id="contactLabel"></p>
+      <a class="contact-email" id="contactEmail" href="#"></a>
+      <p class="contact-note" id="contactNote"></p>
+      <p class="contact-links" id="contactLinks"></p>
+      <footer class="footer mono">
         <span id="footerLeft"></span>
         <span id="footerRight"></span>
       </footer>
     </section>
   </main>
 
-  <script src="js/content.js?v=2"></script>
-  <script src="js/main.js?v=2"></script>
+  <!-- image lightbox -->
+  <div class="lightbox" id="lightbox" hidden>
+    <figure>
+      <img id="lightboxImg" alt="" />
+      <figcaption id="lightboxCap"></figcaption>
+    </figure>
+    <button class="lightbox-close mono" id="lightboxClose" type="button">Close</button>
+  </div>
+
+  <script src="js/content.js?v=3"></script>
+  <script src="js/sound.js?v=3"></script>
+  <script src="js/bg.js?v=3"></script>
+  <script src="js/visuals.js?v=5"></script>
+  <script src="js/main.js?v=3"></script>
 </body>
 </html>

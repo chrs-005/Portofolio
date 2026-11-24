@@ -1,67 +1,37 @@
-# Christophe El Chabab — Portfolio
+# Christophe El Chabab, portfolio
 
-Dark mirror-glass portfolio. Kinetic hero (staggered letter entrance, three-layer mouse
-parallax over a Higgsfield-generated liquid-chrome texture, magnetic letters,
-scroll-linked exit), skills marquee, and numbered sections: About · Projects ·
-Experience · Contact.
-
-Type pairing (from breedlove.xyz): **Archivo** (sans display) + **Newsreader italic**
-(serif accents — anything wrapped in `<em>`).
-
-## Run it
-
-No build step — plain HTML/CSS/JS. Either open `index.html` directly, or serve it:
+Plain HTML, CSS and JavaScript. No build step.
 
 ```
 python -m http.server 4173
 ```
 
-then visit http://localhost:4173.
+then open http://localhost:4173. Live at https://chrs-005.github.io/Portofolio/ (GitHub Pages, deploys from `main`).
 
-> The CSS/JS includes in `index.html` carry a `?v=` query string. If a hard refresh
-> ever shows stale styles while you're editing, bump that number (e.g. `?v=3`) to force
-> the browser to reload the assets.
+## Editing
 
-## Edit the text
+**All text and media live in [`js/content.js`](js/content.js).** Research, projects,
+experience, about, contact. Each project has `body`, `figures`, `stack`, `role`, `links`
+and `media`.
 
-**All copy lives in [`js/content.js`](js/content.js).** Change a value, save, refresh.
-Fields marked `(HTML ok)` accept `<em>…</em>` for the italic serif accent.
+- `role` and any link whose `href` is `"#"` stay hidden until you fill them in.
+- `media` items are either a real image
+  `{ type: "image", src: "assets/projects/x.jpg", alt, caption }`
+  or a live graphic `{ type: "visual", name: "latex", caption }`.
+  Put screenshots in `assets/projects/` and swap them in.
+- After editing CSS or JS, bump the `?v=` numbers in `index.html` if your browser shows
+  an old version.
 
-- `hero.nameLines` — the big animated name (each array entry is one line)
-- `hero.ghostWord` — the giant translucent word floating behind it
-- `marquee` — the looping skills ticker (every other item renders in italic serif)
-- `projects.items` — title, desc, tags, year, href per row
-- `experience.jobs` / `experience.education` — timeline + education cards
-- `contact` — big closing headline, email, footer lines
-- `nav.resume.href` — point this at your résumé PDF when you add it to the folder
+## Files
 
-## Structure
-
-| Piece | Where |
+| File | What it does |
 |---|---|
-| Staggered letter entrance | `.letter` transitions in `css/style.css`, delays set in `js/main.js` |
-| 3-layer mouse parallax | `frame()` in `js/main.js` — texture/bg moves against the cursor, ghost mid-rate, name fastest + 3D tilt |
-| Hero background texture | `assets/hero-texture.png` (Higgsfield-generated), styled by `.bg-texture` |
-| Magnetic letters | `MAG_RADIUS` / `MAG_PULL` in `js/main.js` |
-| Scroll-linked exit | Hero is `position: sticky` inside `.hero-wrap` (175vh); progress drives scale/fade/letter-spread |
-| Skills marquee | `.marquee` CSS animation; content duplicated in `js/main.js` for a seamless loop; skews & speeds up with scroll velocity |
-| Scroll reveals | `.reveal` + IntersectionObserver in `js/main.js` |
-| Scroll readout | `.scrl-counter`, updated in the frame loop |
-| Custom cursor | dot + trailing ring (`.cursor-dot` / `.cursor-ring`); ring grows over interactive elements |
-| Word-split headings | `splitWords()` in `js/main.js` — staggered mask reveal per word |
-| Giant section numbers | `.ghost-num`, parallaxed in the frame loop |
-| Project row spotlight | `--mx`/`--my` radial highlight follows the cursor along each project row |
-| Hairline hover accents | stat / education rows grow an accent underline on hover (no boxes) |
-| Floating "View" label | `.row-chip` bracketed text follows the cursor over project rows |
-| Timeline draw | `.exp-line-fill` scales with scroll; dots light up as they pass |
-| Stat count-ups | `animateStat()` — numbers count up when revealed (incl. the 10⁻⁶ exponent) |
-| Progress bar | `.progress-bar`, thin accent line at the top of the viewport |
+| `js/bg.js` | WebGL smoke background. Always moving, stirred by the cursor, dims on scroll. Falls back to `assets/hero-texture.png` without WebGL. |
+| `js/sound.js` | Sound design made with the Web Audio API (no audio files): ambient drone, hover tones, click. Off until the visitor turns it on. |
+| `js/visuals.js` | Live illustrations for projects without screenshots: `latex`, `rl`, `pinn`, `ble`, `market`, `voice`, `grader`. They only animate while on screen. |
+| `js/main.js` | Renders content, kinetic name entrance, hero parallax and scroll exit, magnetic letters, glyph scramble, image wipe reveals, lightbox, Beirut clock. |
+| `css/style.css` | Layout and type: Archivo, Newsreader, JetBrains Mono. |
 
-Reduced-motion users get a static page with all content visible; touch devices skip
-cursor effects but keep the entrance, reveals, and scroll exit.
+ClubOps and the attendance research images come from Tatiana Nohra's portfolio, used with her permission.
 
-## Adding a section
-
-Duplicate one of the `<section class="section …">` blocks in `index.html`, give it an
-`id`, add its text to `content.js`, and populate it in the top block of `js/main.js`.
-Add `class="reveal"` to anything that should fade in on scroll.
+Reduced-motion visitors get a still page with everything visible.
