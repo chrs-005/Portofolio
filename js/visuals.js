@@ -434,32 +434,28 @@ window.Visuals = (() => {
 
     /* ---------------------------------------------------------- */
     grader(ctx) {
-      const ROWS = 12, TESTS = 10, STEP = 0.045;
-      const total = ROWS * (TESTS + 1), PERIOD = total * STEP + 2.5;
+      const ROWS = 11, TESTS = 16, STEP = 0.03;
+      const total = ROWS * TESTS, PERIOD = total * STEP + 2.5;
       return (t, w, h) => {
         const lt = t % PERIOD;
         const done = Math.floor(lt / STEP);
-        const cols = TESTS + 1;
-        const cell = Math.min((w * 0.78) / (cols + 1.5), (h * 0.76) / ROWS);
+        const cols = TESTS;
+        const cell = Math.min((w * 0.8) / (cols + 1.5), (h * 0.76) / ROWS);
         const ox = (w - cell * (cols + 1.5)) / 2 + cell * 1.5, oy = (h - cell * ROWS) / 2 + 8;
 
-        label(ctx, "tests", ox, oy - 10);
-        label(ctx, "ast", ox + TESTS * cell + cell * 0.5, oy - 10);
+        label(ctx, "submissions x generated tests", ox, oy - 10);
         for (let r = 0; r < ROWS; r++) {
           ctx.fillStyle = C.ink(0.22);
           ctx.fillRect(ox - cell * 1.4, oy + r * cell + cell * 0.38, cell * (0.6 + hash(r, 41) * 0.5), cell * 0.24);
           for (let c = 0; c < cols; c++) {
             const k = r * cols + c;
-            const x = ox + c * cell + (c === TESTS ? cell * 0.5 : 0), y = oy + r * cell;
+            const x = ox + c * cell, y = oy + r * cell;
             if (k > done) {
               ctx.strokeStyle = C.ink(0.08);
               ctx.strokeRect(x + 2.5, y + 2.5, cell - 5, cell - 5);
               continue;
             }
-            if (c === TESTS) {
-              const flagged = hash(r, 43) > 0.82;
-              ctx.fillStyle = flagged ? C.amber(0.75) : C.ink(0.14);
-            } else {
+            {
               ctx.fillStyle = hash(r, c) > 0.18 ? C.hi(0.55) : C.red(0.6);
             }
             ctx.fillRect(x + 2, y + 2, cell - 4, cell - 4);
@@ -469,6 +465,157 @@ window.Visuals = (() => {
             }
           }
         }
+      };
+    },
+
+    /* ---------------------------------------------------------- */
+    retina(ctx) {
+      // vessel tree grown once in unit coordinates from the optic disc
+      const segs = [], nodes = [];
+      let sid = 0;
+      function grow(x, y, ang, len, depth, width) {
+        const pts = [[x, y]];
+        let a = ang, px = x, py = y;
+        const id = sid++;
+        for (let i = 1; i <= 8; i++) {
+          a += (hash(id * 13 + i, depth) - 0.5) * 0.28;
+          px += (Math.cos(a) * len) / 8;
+          py += (Math.sin(a) * len) / 8;
+          pts.push([px, py]);
+        }
+        segs.push({ id, pts, width, depth });
+        if (depth >= 5 || px < 0.03 || px > 0.97 || py < 0.06 || py > 0.94) {
+          nodes.push({ x: px, y: py, end: true });
+          return;
+        }
+        nodes.push({ x: px, y: py, end: false });
+        const spread = 0.38 + hash(id, 9) * 0.3;
+        grow(px, py, a - spread, len * (0.68 + hash(id, 2) * 0.14), depth + 1, width * 0.68);
+        grow(px, py, a + spread, len * (0.62 + hash(id, 3) * 0.14), depth + 1, width * 0.68);
+      }
+      const disc = [0.15, 0.5];
+      grow(disc[0], disc[1], -0.5, 0.3, 1, 5);
+      grow(disc[0], disc[1], 0.5, 0.3, 1, 5);
+      grow(disc[0], disc[1], -1.75, 0.2, 2, 3.4);
+      grow(disc[0], disc[1], 1.75, 0.2, 2, 3.4);
+      const broken = segs.find((s) => s.depth === 3) || segs[1];
+      const PERIOD = 7.5;
+
+      const part = (pts, a, b, w, h) => {
+        const n = pts.length - 1, i0 = Math.round(a * n), i1 = Math.round(b * n);
+        ctx.beginPath();
+        for (let i = i0; i <= i1; i++) i === i0 ? ctx.moveTo(pts[i][0] * w, pts[i][1] * h) : ctx.lineTo(pts[i][0] * w, pts[i][1] * h);
+        ctx.stroke();
+      };
+
+      return (t, w0, h0) => {
+        const lt = t % PERIOD;
+        const fix = clamp((lt - 3) / 1.4, 0, 1);
+        ctx.save();
+        ctx.translate(w0 * 0.05, h0 * 0.09);
+        const w = w0 * 0.88, h = h0 * 0.74;
+
+        ctx.fillStyle = C.amber(0.12);
+        ctx.beginPath();
+        ctx.arc(disc[0] * w, disc[1] * h, h * 0.075, 0, Math.PI * 2);
+        ctx.fill();
+
+        // vessels
+        ctx.lineCap = "round";
+        for (const s of segs) {
+          ctx.strokeStyle = C.red(0.3 + (5 - s.depth) * 0.08);
+          ctx.lineWidth = s.width;
+          if (s === broken) {
+            part(s.pts, 0, 0.375, w, h);
+            part(s.pts, 0.625, 1, w, h);
+            if (fix > 0) {
+              ctx.strokeStyle = C.red((0.3 + (5 - s.depth) * 0.08) * fix);
+              part(s.pts, 0.375, 0.625, w, h);
+            }
+          } else part(s.pts, 0, 1, w, h);
+        }
+        ctx.lineCap = "butt";
+
+        // skeleton graph: straight edges + message passing
+        ctx.lineWidth = 1;
+        for (const s of segs) {
+          const a = s.pts[0], b = s.pts[s.pts.length - 1];
+          if (s === broken && fix < 1) {
+            ctx.strokeStyle = C.hi(0.9);
+            ctx.shadowColor = C.hi(0.8);
+            ctx.shadowBlur = fix > 0 ? 10 : 0;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(a[0] * w, a[1] * h);
+            ctx.lineTo((a[0] + (b[0] - a[0]) * Math.max(fix, 0.001)) * w, (a[1] + (b[1] - a[1]) * Math.max(fix, 0.001)) * h);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.shadowBlur = 0;
+            continue;
+          }
+          ctx.strokeStyle = C.hi(s === broken ? 0.7 : 0.22);
+          ctx.beginPath(); ctx.moveTo(a[0] * w, a[1] * h); ctx.lineTo(b[0] * w, b[1] * h); ctx.stroke();
+          const p = (t * 0.45 + hash(s.id, 17)) % 1;
+          ctx.fillStyle = C.hi(0.75);
+          ctx.fillRect((a[0] + (b[0] - a[0]) * p) * w - 1.5, (a[1] + (b[1] - a[1]) * p) * h - 1.5, 3, 3);
+        }
+        for (const n of nodes) {
+          ctx.fillStyle = n.end ? C.teal(0.9) : C.amber(0.9);
+          ctx.fillRect(n.x * w - 3, n.y * h - 3, 6, 6);
+        }
+
+        const mid = broken.pts[4];
+        label(ctx, fix < 1 ? "missing connection" : "reconnected", mid[0] * w + 10, mid[1] * h - 10, 0.75);
+        ctx.restore();
+        const ly = h0 * 0.92;
+        ctx.fillStyle = C.teal(0.9); ctx.fillRect(w0 * 0.06, ly - 7, 6, 6);
+        label(ctx, "endpoint", w0 * 0.06 + 12, ly);
+        ctx.fillStyle = C.amber(0.9); ctx.fillRect(w0 * 0.06 + 92, ly - 7, 6, 6);
+        label(ctx, "bifurcation", w0 * 0.06 + 104, ly);
+      };
+    },
+
+    /* ---------------------------------------------------------- */
+    fourier(ctx) {
+      const TERMS = 5, KEEP = 320;
+      return (t, w, h) => {
+        const cx = w * 0.2, cy = h * 0.52, R = h * 0.2, th = t * 1.5;
+        let x = cx, y = cy;
+        for (let k = 0; k < TERMS; k++) {
+          const n = 2 * k + 1, r = (R * 4) / (n * Math.PI);
+          ctx.strokeStyle = C.ink(0.13);
+          ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+          const nx = x + r * Math.cos(n * th), ny = y + r * Math.sin(n * th);
+          ctx.strokeStyle = C.ink(0.55);
+          ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(nx, ny); ctx.stroke();
+          x = nx; y = ny;
+        }
+        // the wave is the tip's height over recent time, computed directly
+        const trail = [];
+        for (let i = 0; i < KEEP; i++) {
+          const a = th - i * 0.025;
+          let v = 0;
+          for (let k = 0; k < TERMS; k++) { const n = 2 * k + 1; v += ((R * 4) / (n * Math.PI)) * Math.sin(n * a); }
+          trail.push(v);
+        }
+
+        const wx = w * 0.46, step = (w * 0.48) / KEEP;
+        ctx.strokeStyle = C.ink(0.25);
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(wx, y); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = C.hi(0.9);
+        ctx.lineWidth = 1.6;
+        ctx.shadowColor = C.hi(0.7);
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        trail.forEach((v, i) => (i ? ctx.lineTo(wx + i * step, cy + v) : ctx.moveTo(wx, cy + v)));
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = C.hi(1);
+        ctx.fillRect(x - 2.5, y - 2.5, 5, 5);
+        label(ctx, `fourier series, ${TERMS} terms`, w * 0.06, h * 0.12);
+        label(ctx, "approaching a square wave", w * 0.94, h * 0.92, 0.42, "right");
       };
     },
   };

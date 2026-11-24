@@ -4,7 +4,7 @@
 
    Media items are either
      { type: "image",  src: "assets/...", alt: "...", caption: "..." }
-     { type: "visual", name: "latex" | "rl" | "pinn" | "ble" | "market" | "voice" | "grader", caption: "..." }
+     { type: "visual", name: "latex" | "rl" | "pinn" | "ble" | "retina" | "market" | "voice" | "grader" | "fourier", caption: "..." }
    "visual" is a live graphic drawn in the browser (js/visuals.js).
    To use a real screenshot instead, swap it for an "image" item.
 
@@ -47,6 +47,28 @@ window.CONTENT = {
   research: {
     title: "Research",
     items: [
+      {
+        context: "AI Research Fellow, AUB Frontiers AI Fellows",
+        dates: "11/2026 to now",
+        status: "In progress",
+        title: "Keeping retinal vessels connected when segmenting them",
+        body: [
+          "Vessel segmentation models are usually trained and judged on Dice, which counts pixels. A model can score well and still cut a vessel in two or join the wrong branches at a bifurcation, and those structural errors are what matter when the vessel tree is the thing being studied.",
+          "I reproduced U-Net baselines on the DRIVE dataset and built a pipeline that turns a predicted skeleton into a graph of endpoints, bifurcations and connections, then measured where the structure breaks using clDice and Betti-number errors.",
+          "Now I am building a graph-based refinement step that passes information along the branches to recover missing connections, and comparing different ways of building the graph and topology-aware training objectives.",
+        ],
+        figures: [],
+        stack: "U-Net, DRIVE, graph representation learning, clDice, Betti numbers",
+        role: "",
+        links: [],
+        media: [
+          {
+            type: "visual",
+            name: "retina",
+            caption: "Illustration. A vessel tree read as a graph of endpoints and bifurcations. One branch is broken, and the refinement step reconnects it.",
+          },
+        ],
+      },
       {
         context: "Final year project, AUB · Prof. Louay Bazzi",
         dates: "09/2026 to now",
@@ -129,6 +151,12 @@ window.CONTENT = {
         role: "",
         links: [],
         media: [
+          {
+            type: "image",
+            src: "assets/projects/clubops-cover.jpg",
+            alt: "ClubOps sign-in page: Great events. A lasting legacy. Keep your plans, your people, and everything you've learned together.",
+            caption: "ClubOps, deployed for AUB club cabinets.",
+          },
           {
             type: "image",
             src: "assets/projects/clubops-question.jpg",
@@ -224,9 +252,17 @@ window.CONTENT = {
         org: "AUB Faculty of Engineering",
         role: "Teaching Assistant",
         dates: "01/2024 to 05/2026",
-        text: "Taught and graded 130+ students in Introduction to Programming and 150+ in Design and Analysis of Algorithms. Helped build the course's first auto-grading judge: test inputs generated with NumPy, and AST parsing to catch forbidden methods. Grading time per problem fell by half, and 500+ students got feedback sooner.",
-        stack: "Python, NumPy, AST",
+        text: "Taught and graded 130+ students in Introduction to Programming and 150+ in Design and Analysis of Algorithms, and mentored 40+ of them through weekly office hours and workshops on complexity, data structures and problem solving. I also co-built the course's first auto-grading judge, which runs every submission against 20,000+ generated test inputs. Grading time per problem fell by half for 500+ students.",
+        stack: "Python, NumPy",
         visual: "grader",
+      },
+      {
+        org: "Elevate Arabia",
+        role: "Lecturer and Academic Mentor",
+        dates: "01/2024 to 05/2026",
+        text: "Designed and taught advanced mathematics, physics and programming courses for 120+ students, built around reasoning through problems rather than memorising them. I also ran SAT preparation, where students improved by 180 points on average, and mentored students on their own STEM projects.",
+        stack: "Mathematics, physics, programming, SAT",
+        visual: "fourier",
       },
     ],
   },
